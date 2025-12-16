@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Happy Finals Week</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+/* Prevent time from shifting when seconds change */
+#time {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+#time .seconds {
+  display: inline-block;
+  min-width: 2.4ch;   /* reserves space for 2 digits */
+  text-align: right;
+}
+
+#time .ampm {
+  display: inline-block;
+  min-width: 3.2ch;   /* reserves space for AM / PM */
+  text-align: left;
+}
+
+:root{
+  /* Slightly darker pastel blue */
+  --bg1:#b8dced;
+  --bg2:#d4ecf8;
+  --bg3:#eef7fc;
+  --accent:#2f87c6;
+  --accent2:#4fa3dc;
+  --text:#0b2e4a;
+  --shadow:0 18px 40px rgba(30,90,140,.30);
+  --card1:#c6e4f4;
+  --card2:#b8dced;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:"SF Pro Rounded",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at top left, var(--bg1), var(--bg2)),
+    linear-gradient(180deg, var(--bg2), var(--bg3));
+  height:100vh;width:100vw;
+  overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  color:var(--text);
+  padding:24px;
+}
+
+/* floating bubbles */
+.bubble{
+  position:absolute;border-radius:999px;opacity:.45;filter:blur(2px);
+  animation:float 12s ease-in-out infinite;pointer-events:none;
+}
+.b1{width:340px;height:340px;background:#a9d3ea;top:-90px;left:-60px}
+.b2{width:280px;height:280px;background:#bcdff2;bottom:-90px;right:-80px}
+.b3{width:220px;height:220px;background:#d0eaf7;top:48%;right:-90px}
+@keyframes float{
+  0%,100%{transform:translate(0,0)}
+  50%{transform:translate(12px,-22px)}
+}
+
+/* logo (optional) */
+.logo{
+  width:130px;
+  max-width:40vw;
+  margin-bottom:14px;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.18));
+}
+
+#title{
+  font-size:54px;
+  font-weight:900;
+  margin-bottom:8px;
+  letter-spacing:.02em;
+}
+
+#subtitle{
+  font-size:26px;
+  font-weight:800;
+  opacity:.9;
+  margin-bottom:18px;
+}
+
+#time{
+  font-size:120px;
+  font-weight:900;
+  letter-spacing:.03em;
+}
+#time .seconds{font-size:52px;opacity:.9;margin-left:10px}
+#time .ampm{font-size:52px;margin-left:16px}
+
+#date{
+  font-size:30px;
+  margin-top:6px;
+  opacity:.85;
+  font-weight:700;
+}
+
+.badge{
+  margin-top:18px;
+  padding:12px 26px;
+  font-size:18px;
+  border-radius:999px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  box-shadow:0 8px 20px rgba(47,135,198,.45);
+}
+
+.card{
+  margin-top:22px;
+  background:linear-gradient(180deg,var(--card1),var(--card2));
+  box-shadow:0 18px 44px rgba(47,135,198,.35);
+  border-radius:28px;
+  padding:20px 26px;
+  min-width:620px;
+  max-width:92vw;
+}
+
+.card-label{
+  font-size:18px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.card-main{
+  font-size:58px;
+  font-weight:1000;
+}
+
+.card-sub{
+  margin-top:8px;
+  font-size:18px;
+  font-weight:700;
+  opacity:.85;
+}
+
+.encouragement{
+  position:absolute;bottom:22px;
+  font-size:20px;font-weight:800;
+  padding:12px 22px;border-radius:999px;
+  background:rgba(255,255,255,.78);
+  backdrop-filter: blur(6px);
+  box-shadow:0 10px 26px rgba(47,135,198,.35);
+  opacity:0;
+  transition:opacity 1.2s ease;
+  max-width:92vw;
+}
+.encouragement.show{opacity:1}
+
+/* TIME'S UP overlay + confetti */
+.overlay{
+  position:fixed; inset:0;
+  background:rgba(230,244,248,.92);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+  padding:24px;
+}
+.overlay.show{display:flex;}
+.overlay-card{
+  width:min(760px,92vw);
+  background:linear-gradient(180deg,#dff2fb,#c6e4f4);
+  border-radius:34px;
+  box-shadow:0 28px 80px rgba(30,90,140,.35);
+  padding:40px 30px 28px;
+  position:relative;
+  overflow:hidden;
+}
+.overlay-title{
+  font-size:62px;
+  font-weight:1000;
+}
+.overlay-sub{
+  margin-top:10px;
+  font-size:22px;
+  font-weight:800;
+  opacity:.85;
+}
+.overlay-btn{
+  margin-top:18px;
+  border:none;
+  border-radius:999px;
+  padding:12px 18px;
+  font-size:16px;
+  font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:white;
+  cursor:pointer;
+  box-shadow:0 10px 28px rgba(47,135,198,.45);
+}
+
+.confetti{
+  position:absolute;
+  top:-20px;
+  width:12px;
+  height:18px;
+  border-radius:4px;
+  opacity:.95;
+  animation: fall linear forwards;
+}
+@keyframes fall{
+  to { transform: translateY(110vh) rotate(520deg); }
+}
+
+@media (max-width:700px){
+  .logo{width:95px}
+  #title{font-size:40px}
+  #subtitle{font-size:18px}
+  #time{font-size:86px}
+  #time .seconds,#time .ampm{font-size:36px}
+  #date{font-size:22px}
+  .card{min-width:unset;width:100%}
+  .card-main{font-size:40px}
+  .encouragement{font-size:16px}
+  .overlay-title{font-size:44px}
+}
+</style>
+</head>
+
+<body>
+  <div class="bubble b1"></div>
+  <div class="bubble b2"></div>
+  <div class="bubble b3"></div>
+
+  <!-- Optional logo: keep vc-logo.png in same folder. If you don't want it, delete this line. -->
+  <img src="vc-logo.png" alt="School Logo" class="logo" onerror="this.style.display='none';" />
+
+  <div id="title">Happy Finals Week</div>
+  <div id="subtitle">Loading schedule…</div>
+
+  <div id="time">--:-- <span class="seconds">--</span> <span class="ampm">--</span></div>
+  <div id="date">Loading…</div>
+  <div class="badge">Pacific Time</div>
+
+  <div class="card">
+    <div class="card-label" id="modeLabel">Countdown</div>
+    <div class="card-main" id="countdown">--:--</div>
+    <div class="card-sub" id="rangeText">—</div>
+  </div>
+
+  <div class="encouragement" id="encouragement"></div>
+
+  <!-- TIME'S UP overlay -->
+  <div class="overlay" id="overlay" aria-live="assertive">
+    <div class="overlay-card" id="overlayCard">
+      <div class="overlay-title">TIME’S UP! 🎉</div>
+      <div class="overlay-sub" id="overlaySub">—</div>
+      <button class="overlay-btn" id="dismiss">Hide</button>
+    </div>
+  </div>
+
+<script>
+/* =========================
+   CONFIG
+========================= */
+const TZ = "America/Los_Angeles";
+
+/* Finals schedule (PT) */
+const SCHEDULE = [
+  { date: "2025-12-16", blocks: [
+    { label: "1A", start: "09:00", end: "10:30" },
+    { label: "2A", start: "11:00", end: "12:30" },
+    { label: "1B", start: "13:00", end: "14:30" },
+  ]},
+  { date: "2025-12-17", blocks: [
+    { label: "2B", start: "09:00", end: "10:30" },
+    { label: "3B", start: "11:00", end: "12:30" },
+    { label: "Make-ups", start: "13:00", end: "14:30" },
+  ]},
+  { date: "2025-12-18", blocks: [
+    { label: "3A", start: "09:00", end: "10:30" },
+    { label: "4A", start: "11:00", end: "12:30" },
+    { label: "Make-ups", start: "13:00", end: "14:30" },
+  ]},
+  { date: "2025-12-19", blocks: [
+    { label: "4B", start: "09:00", end: "10:30" },
+  ]},
+];
+
+/* Encouragement rotation (general + Bible verses) */
+const sayings = [
+  "Stay focused. One question at a time.",
+  "You prepared for this. Trust what you know.",
+  "Take a breath and keep moving.",
+  "Focus on what’s in front of you right now.",
+  "Do the next right thing.",
+  "You’re capable and prepared.",
+  "Steady progress is still progress.",
+  "“Do not be anxious about anything.” — Philippians 4:6",
+  "“I can do all things through Him who strengthens me.” — Philippians 4:13",
+  "“Be strong and courageous.” — Joshua 1:9",
+  "“Commit your work to the Lord.” — Proverbs 16:3",
+  "“The Lord is my strength.” — Psalm 28:7",
+  "“Peace I leave with you.” — John 14:27"
+];
+
+/* Milestones during an active final */
+const milestoneMsgs = {
+  30: "30 minutes left — stay steady.",
+  10: "10 minutes left — finish strong.",
+  5:  "5 minutes left — wrap it up."
+};
+
+/* =========================
+   TIME HELPERS (PT-safe)
+========================= */
+const pad2 = n => String(n).padStart(2,"0");
+
+function getLAparts(date){
+  const parts = new Intl.DateTimeFormat("en-US",{
+    timeZone: TZ,
+    year:"numeric",month:"2-digit",day:"2-digit",
+    hour:"2-digit",minute:"2-digit",second:"2-digit",
+    hour12:false
+  }).formatToParts(date);
+  const m = {};
+  parts.forEach(p => { if (p.type !== "literal") m[p.type] = p.value; });
+  return {
+    y:+m.year, mo:+m.month, d:+m.day,
+    h:+m.hour, mi:+m.minute, s:+m.second
+  };
+}
+
+/* Convert a PT "local" date/time into a UTC timestamp (ms) robustly */
+function laLocalToUTCms(y, mo, d, h, mi, s=0){
+  const guessUTC = Date.UTC(y, mo-1, d, h, mi, s);
+  const guessParts = getLAparts(new Date(guessUTC));
+  const desired = Date.UTC(y, mo-1, d, h, mi, s);
+  const got = Date.UTC(guessParts.y, guessParts.mo-1, guessParts.d, guessParts.h, guessParts.mi, guessParts.s);
+  return guessUTC + (desired - got);
+}
+
+function parseHM(hm){
+  const [h,m] = hm.split(":").map(Number);
+  return {h, m};
+}
+
+function fmtRange(startHM, endHM){
+  // show nice "9:00–10:30 AM" style in PT
+  const now = new Date();
+  const la = getLAparts(now);
+  const {h:sh,m:sm} = parseHM(startHM);
+  const {h:eh,m:em} = parseHM(endHM);
+
+  const start = new Date(laLocalToUTCms(la.y, la.mo, la.d, sh, sm, 0));
+  const end   = new Date(laLocalToUTCms(la.y, la.mo, la.d, eh, em, 0));
+
+  const fmt = new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour:"numeric", minute:"2-digit", hour12:true });
+  return `${fmt.format(start)}–${fmt.format(end)} PT`;
+}
+
+/* =========================
+   SCHEDULE LOGIC
+========================= */
+function buildTimeline(){
+  // Flatten blocks with UTC timestamps
+  const out = [];
+  for (const day of SCHEDULE){
+    const [Y,M,D] = day.date.split("-").map(Number);
+    for (const b of day.blocks){
+      const {h:sh,m:sm} = parseHM(b.start);
+      const {h:eh,m:em} = parseHM(b.end);
+      out.push({
+        date: day.date,
+        label: b.label,
+        startHM: b.start,
+        endHM: b.end,
+        startUTC: laLocalToUTCms(Y,M,D,sh,sm,0),
+        endUTC:   laLocalToUTCms(Y,M,D,eh,em,0),
+      });
+    }
+  }
+  out.sort((a,b)=>a.startUTC-b.startUTC);
+  return out;
+}
+
+const TIMELINE = buildTimeline();
+
+/* =========================
+   UI + EFFECTS
+========================= */
+let lastActiveId = null;
+let milestoneHit = new Set();
+let timesUpFiredFor = null;
+
+function showMsg(text){
+  const el = document.getElementById("encouragement");
+  el.classList.remove("show");
+  setTimeout(()=>{ el.textContent = text; el.classList.add("show"); }, 450);
+}
+
+function rotateEncouragement(){
+  showMsg(sayings[Math.floor(Math.random()*sayings.length)]);
+}
+
+function popConfetti(){
+  const card = document.getElementById("overlayCard");
+  const pieces = 120;
+  for (let i=0;i<pieces;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = (Math.random()*100) + "%";
+    c.style.animationDuration = (2.8 + Math.random()*2.2) + "s";
+    c.style.animationDelay = (Math.random()*0.35) + "s";
+    const hue = 190 + Math.random()*40; // blue-ish confetti
+    c.style.background = `hsl(${hue} 85% 75%)`;
+    card.appendChild(c);
+    setTimeout(()=>c.remove(), 6500);
+  }
+}
+
+function showTimesUp(block){
+  timesUpFiredFor = block.startUTC; // unique enough
+  document.getElementById("overlaySub").textContent = `${block.label} ended (${block.startHM}–${block.endHM} PT)`;
+  document.getElementById("overlay").classList.add("show");
+  popConfetti();
+}
+
+/* =========================
+   MAIN TICK
+========================= */
+function tick(){
+  const now = new Date();
+
+  // top clock
+  const tparts = new Intl.DateTimeFormat("en-US",{
+    timeZone: TZ, hour:"numeric", minute:"2-digit", second:"2-digit", hour12:true
+  }).formatToParts(now);
+
+  let hh="", mm="", ss="", ampm="";
+  tparts.forEach(p=>{
+    if(p.type==="hour") hh=p.value;
+    if(p.type==="minute") mm=p.value;
+    if(p.type==="second") ss=p.value;
+    if(p.type==="dayPeriod") ampm=p.value.toUpperCase();
+  });
+
+  document.getElementById("time").innerHTML =
+    `${hh}:${mm} <span class="seconds">${ss}</span> <span class="ampm">${ampm}</span>`;
+
+  document.getElementById("date").textContent =
+    new Intl.DateTimeFormat("en-US",{
+      timeZone: TZ, weekday:"long", year:"numeric", month:"long", day:"numeric"
+    }).format(now);
+
+  const nowMs = now.getTime();
+
+  // find active or next block
+  let active = null;
+  let next = null;
+
+  for (const b of TIMELINE){
+    if (nowMs >= b.startUTC && nowMs < b.endUTC) { active = b; break; }
+    if (nowMs < b.startUTC) { next = b; break; }
+  }
+
+  const subtitleEl = document.getElementById("subtitle");
+  const modeLabelEl = document.getElementById("modeLabel");
+  const countdownEl = document.getElementById("countdown");
+  const rangeTextEl = document.getElementById("rangeText");
+
+  if (active){
+    // reset milestone state if we changed finals
+    const activeId = active.startUTC;
+    if (lastActiveId !== activeId){
+      lastActiveId = activeId;
+      milestoneHit = new Set();
+    }
+
+    subtitleEl.textContent = `Final: ${active.label}`;
+    modeLabelEl.textContent = "Time left in final";
+    rangeTextEl.textContent = `${active.startHM}–${active.endHM} PT`;
+
+    const remainingMs = Math.max(0, active.endUTC - nowMs);
+    const totalSec = Math.floor(remainingMs / 1000);
+    const minsLeft = Math.floor(totalSec / 60);
+
+    const H = Math.floor(totalSec / 3600);
+    const M = Math.floor((totalSec % 3600) / 60);
+    const S = totalSec % 60;
+
+    // Only show seconds when 10 minutes left (or less)
+    if (minsLeft <= 10){
+      countdownEl.textContent = `${pad2(H)}:${pad2(M)}:${pad2(S)}`;
+    } else {
+      // HH:MM (rounded up so it doesn't look like time is "stuck")
+      const totalMinCeil = Math.ceil(remainingMs / 60000);
+      const h2 = Math.floor(totalMinCeil / 60);
+      const m2 = totalMinCeil % 60;
+      countdownEl.textContent = `${pad2(h2)}:${pad2(m2)}`;
+    }
+
+    // milestones at 30/10/5 (fire once per final)
+    [30,10,5].forEach(mark=>{
+      if (minsLeft === mark && !milestoneHit.has(mark)){
+        milestoneHit.add(mark);
+        showMsg(milestoneMsgs[mark]);
+      }
+    });
+
+    // if final is ending now (or just ended), pop confetti once
+    if (remainingMs <= 0 && timesUpFiredFor !== active.startUTC){
+      showTimesUp(active);
+    }
+
+  } else if (next){
+    subtitleEl.textContent = `Next: ${next.label}`;
+    modeLabelEl.textContent = "Next final starts in";
+    rangeTextEl.textContent = `${next.date} • ${next.startHM}–${next.endHM} PT`;
+
+    const untilMs = Math.max(0, next.startUTC - nowMs);
+    const untilSec = Math.floor(untilMs / 1000);
+    const H = Math.floor(untilSec / 3600);
+    const M = Math.floor((untilSec % 3600) / 60);
+    const S = untilSec % 60;
+
+    // show HH:MM (and seconds only if within 10 minutes of start)
+    const minsLeft = Math.floor(untilSec / 60);
+    if (minsLeft <= 10){
+      countdownEl.textContent = `${pad2(H)}:${pad2(M)}:${pad2(S)}`;
+    } else {
+      const totalMinCeil = Math.ceil(untilMs / 60000);
+      const h2 = Math.floor(totalMinCeil / 60);
+      const m2 = totalMinCeil % 60;
+      countdownEl.textContent = `${pad2(h2)}:${pad2(m2)}`;
+    }
+
+    lastActiveId = null; // not in a final
+    milestoneHit = new Set();
+
+  } else {
+    subtitleEl.textContent = "All finals complete";
+    modeLabelEl.textContent = "Countdown";
+    countdownEl.textContent = "00:00";
+    rangeTextEl.textContent = "Have a great break!";
+    lastActiveId = null;
+    milestoneHit = new Set();
+  }
+}
+
+/* =========================
+   START
+========================= */
+document.getElementById("dismiss").addEventListener("click", ()=>{
+  document.getElementById("overlay").classList.remove("show");
+});
+
+rotateEncouragement();
+setInterval(rotateEncouragement, 15 * 60 * 1000);
+
+tick();
+setInterval(tick, 1000);
+</script>
+
+</body>
+</html>
