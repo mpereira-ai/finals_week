@@ -42,12 +42,17 @@ body{
 }
 
 .bubble{
-  position:absolute;border-radius:999px;opacity:.45;filter:blur(2px);
-  animation:float 12s ease-in-out infinite;pointer-events:none;
+  position:absolute;
+  border-radius:999px;
+  opacity:.45;
+  filter:blur(2px);
+  animation:float 12s ease-in-out infinite;
+  pointer-events:none;
 }
 .b1{width:340px;height:340px;background:#a9d3ea;top:-90px;left:-60px}
 .b2{width:280px;height:280px;background:#bcdff2;bottom:-90px;right:-80px}
 .b3{width:220px;height:220px;background:#d0eaf7;top:48%;right:-90px}
+
 @keyframes float{
   0%,100%{transform:translate(0,0)}
   50%{transform:translate(12px,-22px)}
@@ -57,7 +62,7 @@ body{
   width:clamp(86px, 18vw, 130px);
   max-width:40vw;
   margin-bottom:clamp(10px, 2vw, 14px);
-  filter: drop-shadow(0 6px 14px rgba(0,0,0,.18));
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.18));
   cursor:pointer;
 }
 
@@ -80,7 +85,7 @@ body{
   align-items:baseline;
   justify-content:center;
   gap:10px;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric:tabular-nums;
   font-size:clamp(58px, 10vw, 120px);
   font-weight:900;
   letter-spacing:.03em;
@@ -119,6 +124,7 @@ body{
   letter-spacing:.08em;
   text-transform:uppercase;
   box-shadow:0 5px 12px rgba(47,135,198,.35);
+}
 
 .card{
   margin-top:clamp(14px, 2.6vw, 22px);
@@ -157,7 +163,7 @@ body{
   padding:12px 22px;
   border-radius:999px;
   background:rgba(255,255,255,.78);
-  backdrop-filter: blur(6px);
+  backdrop-filter:blur(6px);
   box-shadow:0 10px 26px rgba(47,135,198,.35);
   opacity:0;
   transition:opacity 1.2s ease;
@@ -166,7 +172,8 @@ body{
 .encouragement.show{opacity:1}
 
 .overlay{
-  position:fixed; inset:0;
+  position:fixed;
+  inset:0;
   background:rgba(230,244,248,.92);
   display:none;
   align-items:center;
@@ -189,16 +196,19 @@ body{
   position:relative;
   overflow:hidden;
 }
+
 .overlay-title{
   font-size:clamp(38px, 7vw, 62px);
   font-weight:1000;
 }
+
 .overlay-sub{
   margin-top:10px;
   font-size:clamp(16px, 3vw, 22px);
   font-weight:800;
   opacity:.85;
 }
+
 .overlay-btn{
   margin-top:18px;
   border:none;
@@ -219,10 +229,11 @@ body{
   height:18px;
   border-radius:4px;
   opacity:.95;
-  animation: fall linear forwards;
+  animation:fall linear forwards;
 }
+
 @keyframes fall{
-  to { transform: translateY(110vh) rotate(520deg); }
+  to{transform:translateY(110vh) rotate(520deg);}
 }
 </style>
 </head>
@@ -318,20 +329,43 @@ const pad2 = n => String(n).padStart(2,"0");
 function getLAparts(date){
   const parts = new Intl.DateTimeFormat("en-US",{
     timeZone: TZ,
-    year:"numeric",month:"2-digit",day:"2-digit",
-    hour:"2-digit",minute:"2-digit",second:"2-digit",
+    year:"numeric",
+    month:"2-digit",
+    day:"2-digit",
+    hour:"2-digit",
+    minute:"2-digit",
+    second:"2-digit",
     hour12:false
   }).formatToParts(date);
+
   const m = {};
-  parts.forEach(p => { if (p.type !== "literal") m[p.type] = p.value; });
-  return { y:+m.year, mo:+m.month, d:+m.day, h:+m.hour, mi:+m.minute, s:+m.second };
+  parts.forEach(p => {
+    if (p.type !== "literal") m[p.type] = p.value;
+  });
+
+  return {
+    y:+m.year,
+    mo:+m.month,
+    d:+m.day,
+    h:+m.hour,
+    mi:+m.minute,
+    s:+m.second
+  };
 }
 
 function laLocalToUTCms(y, mo, d, h, mi, s=0){
   const guessUTC = Date.UTC(y, mo-1, d, h, mi, s);
   const guessParts = getLAparts(new Date(guessUTC));
   const desired = Date.UTC(y, mo-1, d, h, mi, s);
-  const got = Date.UTC(guessParts.y, guessParts.mo-1, guessParts.d, guessParts.h, guessParts.mi, guessParts.s);
+  const got = Date.UTC(
+    guessParts.y,
+    guessParts.mo-1,
+    guessParts.d,
+    guessParts.h,
+    guessParts.mi,
+    guessParts.s
+  );
+
   return guessUTC + (desired - got);
 }
 
@@ -342,30 +376,35 @@ function parseHM(hm){
 
 function fmtRange(startHM, endHM){
   const fmt = (hm)=>{
-    let [h,m]=hm.split(":").map(Number);
+    let [h,m] = hm.split(":").map(Number);
     h = h % 12 || 12;
     return m === 0 ? `${h}` : `${h}:${String(m).padStart(2,"0")}`;
   };
+
   return `${fmt(startHM)}–${fmt(endHM)}`;
 }
 
 function buildTimeline(){
   const out = [];
+
   for (const day of SCHEDULE){
     const [Y,M,D] = day.date.split("-").map(Number);
+
     for (const b of day.blocks){
       const {h:sh,m:sm} = parseHM(b.start);
       const {h:eh,m:em} = parseHM(b.end);
+
       out.push({
         date: day.date,
         label: b.label,
         startHM: b.start,
         endHM: b.end,
         startUTC: laLocalToUTCms(Y,M,D,sh,sm,0),
-        endUTC:   laLocalToUTCms(Y,M,D,eh,em,0),
+        endUTC: laLocalToUTCms(Y,M,D,eh,em,0),
       });
     }
   }
+
   out.sort((a,b)=>a.startUTC-b.startUTC);
   return out;
 }
@@ -379,7 +418,11 @@ let timesUpFiredFor = null;
 function showMsg(text){
   const el = document.getElementById("encouragement");
   el.classList.remove("show");
-  setTimeout(()=>{ el.textContent = text; el.classList.add("show"); }, 450);
+
+  setTimeout(()=>{
+    el.textContent = text;
+    el.classList.add("show");
+  }, 450);
 }
 
 function rotateEncouragement(){
@@ -389,14 +432,17 @@ function rotateEncouragement(){
 function popConfetti(){
   const card = document.getElementById("overlayCard");
   const pieces = 120;
-  for (let i=0;i<pieces;i++){
+
+  for (let i=0; i<pieces; i++){
     const c = document.createElement("div");
     c.className = "confetti";
     c.style.left = (Math.random()*100) + "%";
     c.style.animationDuration = (2.8 + Math.random()*2.2) + "s";
     c.style.animationDelay = (Math.random()*0.35) + "s";
+
     const hue = 190 + Math.random()*40;
     c.style.background = `hsl(${hue} 85% 75%)`;
+
     card.appendChild(c);
     setTimeout(()=>c.remove(), 6500);
   }
@@ -404,7 +450,9 @@ function popConfetti(){
 
 function showTimesUp(block){
   timesUpFiredFor = block.startUTC;
-  document.getElementById("overlaySub").textContent = `${block.label} ended (${fmtRange(block.startHM, block.endHM)} PT)`;
+  document.getElementById("overlaySub").textContent =
+    `${block.label} ended (${fmtRange(block.startHM, block.endHM)} PST)`;
+
   document.getElementById("overlay").classList.add("show");
   popConfetti();
 }
@@ -413,7 +461,11 @@ function tick(){
   const now = new Date();
 
   const tparts = new Intl.DateTimeFormat("en-US",{
-    timeZone: TZ, hour:"numeric", minute:"2-digit", second:"2-digit", hour12:true
+    timeZone: TZ,
+    hour:"numeric",
+    minute:"2-digit",
+    second:"2-digit",
+    hour12:true
   }).formatToParts(now);
 
   let hh="", mm="", ss="", ampm="";
@@ -428,7 +480,13 @@ function tick(){
     `${hh}:${mm} <span class="seconds">${ss}</span> <span class="ampm">${ampm}</span>`;
 
   document.getElementById("date").textContent =
-    new Intl.DateTimeFormat("en-US",{ timeZone: TZ, weekday:"long", year:"numeric", month:"long", day:"numeric" }).format(now);
+    new Intl.DateTimeFormat("en-US",{
+      timeZone: TZ,
+      weekday:"long",
+      year:"numeric",
+      month:"long",
+      day:"numeric"
+    }).format(now);
 
   const nowMs = now.getTime();
 
@@ -436,8 +494,15 @@ function tick(){
   let next = null;
 
   for (const b of TIMELINE){
-    if (nowMs >= b.startUTC && nowMs < b.endUTC) { active = b; break; }
-    if (nowMs < b.startUTC) { next = b; break; }
+    if (nowMs >= b.startUTC && nowMs < b.endUTC) {
+      active = b;
+      break;
+    }
+
+    if (nowMs < b.startUTC) {
+      next = b;
+      break;
+    }
   }
 
   const subtitleEl = document.getElementById("subtitle");
@@ -447,6 +512,7 @@ function tick(){
 
   if (active){
     const activeId = active.startUTC;
+
     if (lastActiveId !== activeId){
       lastActiveId = activeId;
       milestoneHit = new Set();
@@ -454,7 +520,7 @@ function tick(){
 
     subtitleEl.textContent = `Final: ${active.label}`;
     modeLabelEl.textContent = "Time left in final";
-    rangeTextEl.textContent = `${fmtRange(active.startHM, active.endHM)} PT`;
+    rangeTextEl.textContent = `${fmtRange(active.startHM, active.endHM)} PST`;
 
     const remainingMs = Math.max(0, active.endUTC - nowMs);
     const totalSec = Math.floor(remainingMs / 1000);
@@ -487,15 +553,17 @@ function tick(){
   } else if (next){
     subtitleEl.textContent = `Next: ${next.label}`;
     modeLabelEl.textContent = "Next final starts in";
-    rangeTextEl.textContent = `${next.date} • ${fmtRange(next.startHM, next.endHM)} PT`;
+    rangeTextEl.textContent = `${next.date} • ${fmtRange(next.startHM, next.endHM)} PST`;
 
     const untilMs = Math.max(0, next.startUTC - nowMs);
     const untilSec = Math.floor(untilMs / 1000);
+
     const H = Math.floor(untilSec / 3600);
     const M = Math.floor((untilSec % 3600) / 60);
     const S = untilSec % 60;
 
     const minsLeft = Math.floor(untilSec / 60);
+
     if (minsLeft <= 10){
       countdownEl.textContent = `${pad2(H)}:${pad2(M)}:${pad2(S)}`;
     } else {
