@@ -7,7 +7,6 @@
 
 <style>
 :root{
-  /* Slightly darker pastel blue */
   --bg1:#b8dced;
   --bg2:#d4ecf8;
   --bg3:#eef7fc;
@@ -35,8 +34,6 @@ body{
   justify-content:center;
   text-align:center;
   color:var(--text);
-
-  /* Safe-area aware padding for mobile notches/home bar */
   padding:
     calc(18px + env(safe-area-inset-top))
     calc(18px + env(safe-area-inset-right))
@@ -44,7 +41,6 @@ body{
     calc(18px + env(safe-area-inset-left));
 }
 
-/* floating bubbles */
 .bubble{
   position:absolute;border-radius:999px;opacity:.45;filter:blur(2px);
   animation:float 12s ease-in-out infinite;pointer-events:none;
@@ -57,16 +53,14 @@ body{
   50%{transform:translate(12px,-22px)}
 }
 
-/* logo (optional) */
 .logo{
   width:clamp(86px, 18vw, 130px);
   max-width:40vw;
   margin-bottom:clamp(10px, 2vw, 14px);
   filter: drop-shadow(0 6px 14px rgba(0,0,0,.18));
+  cursor:pointer;
 }
-.logo { cursor: pointer; }
 
-/* Typography scales smoothly */
 #title{
   font-size:clamp(30px, 5.2vw, 54px);
   font-weight:900;
@@ -81,14 +75,12 @@ body{
   margin-bottom:clamp(12px, 2.8vw, 18px);
 }
 
-/* Prevent time from shifting when seconds change */
 #time{
   display:flex;
   align-items:baseline;
   justify-content:center;
   gap:10px;
   font-variant-numeric: tabular-nums;
-
   font-size:clamp(58px, 10vw, 120px);
   font-weight:900;
   letter-spacing:.03em;
@@ -129,7 +121,6 @@ body{
   box-shadow:0 8px 20px rgba(47,135,198,.45);
 }
 
-/* Responsive card sizing (no fixed min-width) */
 .card{
   margin-top:clamp(14px, 2.6vw, 22px);
   width:min(720px, 92vw);
@@ -175,7 +166,6 @@ body{
 }
 .encouragement.show{opacity:1}
 
-/* TIME'S UP overlay + confetti */
 .overlay{
   position:fixed; inset:0;
   background:rgba(230,244,248,.92);
@@ -274,34 +264,34 @@ body{
   </div>
 
 <script>
-/* =========================
-   CONFIG
-========================= */
 const TZ = "America/Los_Angeles";
 
-/* Finals schedule (PT) */
+/* Spring Finals schedule 2026 */
 const SCHEDULE = [
-  { date: "2025-12-16", blocks: [
-    { label: "1A", start: "09:00", end: "10:30" },
-    { label: "2A", start: "11:00", end: "12:30" },
-    { label: "1B", start: "13:00", end: "14:30" },
+  { date: "2026-05-26", blocks: [
+    { label: "2A", start: "09:00", end: "10:30" },
+    { label: "3A", start: "11:00", end: "12:30" },
+    { label: "1A", start: "13:00", end: "14:30" },
   ]},
-  { date: "2025-12-17", blocks: [
+
+  { date: "2026-05-27", blocks: [
     { label: "2B", start: "09:00", end: "10:30" },
     { label: "3B", start: "11:00", end: "12:30" },
+    { label: "1B", start: "13:00", end: "14:30" },
+  ]},
+
+  { date: "2026-05-28", blocks: [
+    { label: "4A", start: "09:00", end: "10:30" },
+    { label: "4B", start: "11:00", end: "12:30" },
     { label: "Make-ups", start: "13:00", end: "14:30" },
   ]},
-  { date: "2025-12-18", blocks: [
-    { label: "3A", start: "09:00", end: "10:30" },
-    { label: "4A", start: "11:00", end: "12:30" },
-    { label: "Make-ups", start: "13:00", end: "14:30" },
-  ]},
-  { date: "2025-12-19", blocks: [
-    { label: "4B", start: "09:00", end: "10:30" },
+
+  { date: "2026-05-29", blocks: [
+    { label: "Make-ups", start: "09:00", end: "10:30" },
+    { label: "Grad Practice", start: "11:00", end: "12:00" },
   ]},
 ];
 
-/* Encouragement rotation (general + Bible verses) */
 const sayings = [
   "Stay focused. One question at a time.",
   "You prepared for this. Trust what you know.",
@@ -318,16 +308,12 @@ const sayings = [
   "“Peace I leave with you.” — John 14:27"
 ];
 
-/* Milestones during an active final */
 const milestoneMsgs = {
   30: "30 minutes left — stay steady.",
   10: "10 minutes left — finish strong.",
   5:  "5 minutes left — wrap it up."
 };
 
-/* =========================
-   TIME HELPERS (PT-safe)
-========================= */
 const pad2 = n => String(n).padStart(2,"0");
 
 function getLAparts(date){
@@ -355,9 +341,15 @@ function parseHM(hm){
   return {h, m};
 }
 
-/* =========================
-   SCHEDULE LOGIC
-========================= */
+function fmtRange(startHM, endHM){
+  const fmt = (hm)=>{
+    let [h,m]=hm.split(":").map(Number);
+    h = h % 12 || 12;
+    return m === 0 ? `${h}` : `${h}:${String(m).padStart(2,"0")}`;
+  };
+  return `${fmt(startHM)}–${fmt(endHM)}`;
+}
+
 function buildTimeline(){
   const out = [];
   for (const day of SCHEDULE){
@@ -378,11 +370,9 @@ function buildTimeline(){
   out.sort((a,b)=>a.startUTC-b.startUTC);
   return out;
 }
+
 const TIMELINE = buildTimeline();
 
-/* =========================
-   UI + EFFECTS
-========================= */
 let lastActiveId = null;
 let milestoneHit = new Set();
 let timesUpFiredFor = null;
@@ -392,6 +382,7 @@ function showMsg(text){
   el.classList.remove("show");
   setTimeout(()=>{ el.textContent = text; el.classList.add("show"); }, 450);
 }
+
 function rotateEncouragement(){
   showMsg(sayings[Math.floor(Math.random()*sayings.length)]);
 }
@@ -414,18 +405,14 @@ function popConfetti(){
 
 function showTimesUp(block){
   timesUpFiredFor = block.startUTC;
-  document.getElementById("overlaySub").textContent = `${block.label} ended (${block.startHM}–${block.endHM} PT)`;
+  document.getElementById("overlaySub").textContent = `${block.label} ended (${fmtRange(block.startHM, block.endHM)} PT)`;
   document.getElementById("overlay").classList.add("show");
   popConfetti();
 }
 
-/* =========================
-   MAIN TICK
-========================= */
 function tick(){
   const now = new Date();
 
-  // top clock
   const tparts = new Intl.DateTimeFormat("en-US",{
     timeZone: TZ, hour:"numeric", minute:"2-digit", second:"2-digit", hour12:true
   }).formatToParts(now);
@@ -446,7 +433,6 @@ function tick(){
 
   const nowMs = now.getTime();
 
-  // find active or next block
   let active = null;
   let next = null;
 
@@ -469,7 +455,7 @@ function tick(){
 
     subtitleEl.textContent = `Final: ${active.label}`;
     modeLabelEl.textContent = "Time left in final";
-    rangeTextEl.textContent = `${active.startHM}–${active.endHM} PT`;
+    rangeTextEl.textContent = `${fmtRange(active.startHM, active.endHM)} PT`;
 
     const remainingMs = Math.max(0, active.endUTC - nowMs);
     const totalSec = Math.floor(remainingMs / 1000);
@@ -502,7 +488,7 @@ function tick(){
   } else if (next){
     subtitleEl.textContent = `Next: ${next.label}`;
     modeLabelEl.textContent = "Next final starts in";
-    rangeTextEl.textContent = `${next.date} • ${next.startHM}–${next.endHM} PT`;
+    rangeTextEl.textContent = `${next.date} • ${fmtRange(next.startHM, next.endHM)} PT`;
 
     const untilMs = Math.max(0, next.startUTC - nowMs);
     const untilSec = Math.floor(untilMs / 1000);
@@ -533,9 +519,6 @@ function tick(){
   }
 }
 
-/* =========================
-   START
-========================= */
 document.getElementById("dismiss").addEventListener("click", ()=>{
   document.getElementById("overlay").classList.remove("show");
 });
